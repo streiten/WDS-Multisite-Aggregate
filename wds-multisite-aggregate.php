@@ -466,6 +466,19 @@ class WDS_Multisite_Aggregate {
 			$this->set_thumbnail_by_url( $meta_to_sync[ 'thumbnail_url' ], $post_id );
 			unset( $meta_to_sync[ 'thumbnail_url' ]);
 		}
+
+		// remove 'thumbnail_html*' meta for aggregated post if thumbnail removed on original post
+		$thumbs_meta = array_filter($meta_to_sync,function($k){
+			return strpos($k,'thumbnail_html') === 0;
+		});
+		if(!count($thumbs_meta)) {
+			foreach (get_post_meta($post_id) as $k => $value) {
+				if( strpos($k,'thumbnail_html') === 0 ) {
+					delete_post_meta($post_id,$k );
+				}
+			}
+		}
+
 		foreach ( (array) $meta_to_sync as $key => $value ) {
 			if ( $value ) {
 				$updated[ $key ] = add_post_meta( $post_id, $key, $value );
